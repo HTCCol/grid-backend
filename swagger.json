@@ -25,8 +25,8 @@
       }
     },
     {
-      "name": "store",
-      "description": "Access to Petstore orders"
+      "name": "job",
+      "description": "Api documentation about jobs"
     },
     {
       "name": "user",
@@ -42,6 +42,61 @@
   ],
   "paths": {
     "/tool": {
+      "get": {
+        "tags": [
+          "tool"
+        ],
+        "summary": "Lists a find tool",
+        "description": "you can filter by Muliple id status, name, observation ",
+        "operationId": "findToolsByStatus",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "idState",
+            "in": "query",
+            "description": "Status values that need to be considered for filter",
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "enum": [
+                "1",
+                "2",
+                "3"
+              ],
+              "default": "available"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name values that need to be considered for filter",
+            "type": "string"
+          },
+          {
+            "name": "observation",
+            "in": "query",
+            "description": "observation values that need to be considered for filter",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Tool"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status value"
+          }
+        }
+      },
       "post": {
         "tags": [
           "tool"
@@ -81,7 +136,42 @@
         ]
       }
     },
-    "/tool/id": {
+    "/tool/{id}": {
+      "get": {
+        "tags": [
+          "tool"
+        ],
+        "summary": "Find tool by ID",
+        "description": "Returns a single tool",
+        "operationId": "getToolById",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of pet to return",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Tool"
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Tool not found"
+          }
+        }
+      },
       "put": {
         "tags": [
           "tool"
@@ -98,7 +188,7 @@
         "parameters": [
           {
             "in": "body",
-            "name": "body",
+            "name": "id",
             "description": "Tool object that needs to be added to the system",
             "required": true,
             "schema": {
@@ -125,16 +215,69 @@
             ]
           }
         ]
-      }
-    },
-    "/tool/findByStatus": {
-      "get": {
+      },
+      "delete": {
         "tags": [
           "tool"
         ],
-        "summary": "Lists a find tool",
-        "description": "Muliple id status can be provided with one array. Use         [1, 2] for testing.",
-        "operationId": "findToolsByStatus",
+        "summary": "Deletes a tool",
+        "description": "",
+        "operationId": "deleteTool",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "tool id to delete",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Tool not found"
+          }
+        }
+      }
+    },
+    "/job/create": {
+      "get": {
+        "tags": [
+          "job"
+        ],
+        "summary": "data aviable and necessary for create new job",
+        "description": "Returns states and  tool aviable for register new job",
+        "operationId": "createJob",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Tool"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/job": {
+      "get": {
+        "tags": [
+          "job"
+        ],
+        "summary": "Returns jobs with tools by status ",
+        "description": "return list of jobs",
+        "operationId": "listJob",
         "produces": [
           "application/json"
         ],
@@ -143,66 +286,29 @@
             "name": "idState",
             "in": "query",
             "description": "Status values that need to be considered for filter",
-            "required": true,
             "type": "array",
             "items": {
-              "type": "string",
+              "type": "integer",
               "enum": [
-                "available",
-                "pending",
-                "sold"
+                "1",
+                "2",
+                "3"
               ],
               "default": "available"
             },
             "collectionFormat": "multi"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Tool"
-              }
-            }
           },
-          "400": {
-            "description": "Invalid status value"
-          }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
-      }
-    },
-    "/tool/name": {
-      "get": {
-        "tags": [
-          "tool"
-        ],
-        "summary": "Finds tool by name",
-        "description": "sebd string name of the tool",
-        "operationId": "findPetsByTags",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
           {
             "name": "name",
             "in": "query",
-            "description": "Tags to filter by",
-            "required": true,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
+            "description": "name values that need to be considered for filter",
+            "type": "string"
+          },
+          {
+            "name": "observation",
+            "in": "query",
+            "description": "observation values that need to be considered for filter",
+            "type": "string"
           }
         ],
         "responses": {
@@ -211,261 +317,20 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/Tool"
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid tag value"
-          }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ],
-        "deprecated": true
-      }
-    },
-    "/tool/{id}": {
-      "get": {
-        "tags": [
-          "tool"
-        ],
-        "summary": "Find tool by ID",
-        "description": "Returns a single tool",
-        "operationId": "getToolById",
-        "produces": [
-          "application/xml",
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of pet to return",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Tool"
-            }
-          },
-          "400": {
-            "description": "Invalid ID supplied"
-          },
-          "404": {
-            "description": "Tool not found"
-          }
-        },
-        "security": [
-          {
-            "api_key": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "tool"
-        ],
-        "summary": "Updates a pet in the store with form data",
-        "description": "",
-        "operationId": "updatePetWithForm",
-        "consumes": [
-          "application/x-www-form-urlencoded"
-        ],
-        "produces": [
-          "application/xml",
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of pet that needs to be updated",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "name",
-            "in": "formData",
-            "description": "Updated name of the pet",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "status",
-            "in": "formData",
-            "description": "Updated status of the pet",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "405": {
-            "description": "Invalid input"
-          }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "tool"
-        ],
-        "summary": "Deletes a pet",
-        "description": "",
-        "operationId": "deletePet",
-        "produces": [
-          "application/xml",
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "api_key",
-            "in": "header",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "description": "Pet id to delete",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "Invalid ID supplied"
-          },
-          "404": {
-            "description": "Pet not found"
-          }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
-      }
-    },
-    "/tool/{petId}/uploadImage": {
-      "post": {
-        "tags": [
-          "tool"
-        ],
-        "summary": "uploads an image",
-        "description": "",
-        "operationId": "uploadFile",
-        "consumes": [
-          "multipart/form-data"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "petId",
-            "in": "path",
-            "description": "ID of pet to update",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "additionalMetadata",
-            "in": "formData",
-            "description": "Additional data to pass to server",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "file",
-            "in": "formData",
-            "description": "file to upload",
-            "required": false,
-            "type": "file"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/ApiResponse"
-            }
-          }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
-      }
-    },
-    "/store/inventory": {
-      "get": {
-        "tags": [
-          "store"
-        ],
-        "summary": "Returns pet inventories by status",
-        "description": "Returns a map of status codes to quantities",
-        "operationId": "getInventory",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "integer",
-                "format": "int32"
+                "$ref": "#/definitions/Job"
               }
             }
           }
-        },
-        "security": [
-          {
-            "api_key": []
-          }
-        ]
-      }
-    },
-    "/store/order": {
+        }
+      },
       "post": {
         "tags": [
-          "store"
+          "job"
         ],
-        "summary": "Place an order for a pet",
-        "description": "",
+        "summary": "Create a jobs",
+        "description": "send a correct parametres. A new job will be saved in the system",
         "operationId": "placeOrder",
         "produces": [
-          "application/xml",
           "application/json"
         ],
         "parameters": [
@@ -492,26 +357,24 @@
         }
       }
     },
-    "/store/order/{orderId}": {
+    "/job/{id}": {
       "get": {
         "tags": [
-          "store"
+          "job"
         ],
-        "summary": "Find purchase order by ID",
-        "description": "For valid response try integer IDs with value >= 1 and <= 10.         Other values will generated exceptions",
-        "operationId": "getOrderById",
+        "summary": "Find job  by ID",
+        "description": "",
+        "operationId": "getJobId",
         "produces": [
-          "application/xml",
           "application/json"
         ],
         "parameters": [
           {
-            "name": "orderId",
+            "name": "id",
             "in": "path",
-            "description": "ID of pet that needs to be fetched",
+            "description": "ID of job that needs",
             "required": true,
             "type": "integer",
-            "maximum": 10,
             "minimum": 1,
             "format": "int64"
           }
@@ -527,26 +390,58 @@
             "description": "Invalid ID supplied"
           },
           "404": {
-            "description": "Order not found"
+            "description": "job not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "job"
+        ],
+        "summary": "update a jobs",
+        "description": "send a correct parametres. A  job will be updated in the system",
+        "operationId": "updateJob",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Attributes for job ",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Job"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Job"
+            }
+          },
+          "400": {
+            "description": "Invalid job"
           }
         }
       },
       "delete": {
         "tags": [
-          "store"
+          "job"
         ],
-        "summary": "Delete purchase order by ID",
+        "summary": "Delete job",
         "description": "For valid response try integer IDs with positive integer value.         Negative or non-integer values will generate API errors",
-        "operationId": "deleteOrder",
+        "operationId": "deleteJob",
         "produces": [
-          "application/xml",
           "application/json"
         ],
         "parameters": [
           {
-            "name": "orderId",
+            "name": "id",
             "in": "path",
-            "description": "ID of the order that needs to be deleted",
+            "description": "ID of the job that needs to be deleted",
             "required": true,
             "type": "integer",
             "minimum": 1,
@@ -572,7 +467,6 @@
         "description": "This can only be done by the logged in user.",
         "operationId": "createUser",
         "produces": [
-          "application/xml",
           "application/json"
         ],
         "parameters": [
@@ -593,146 +487,31 @@
         }
       }
     },
-    "/user/createWithArray": {
-      "post": {
-        "tags": [
-          "user"
-        ],
-        "summary": "Creates list of users with given input array",
-        "description": "",
-        "operationId": "createUsersWithArrayInput",
-        "produces": [
-          "application/xml",
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "description": "List of user object",
-            "required": true,
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/User"
-              }
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": "successful operation"
-          }
-        }
-      }
-    },
-    "/user/createWithList": {
-      "post": {
-        "tags": [
-          "user"
-        ],
-        "summary": "Creates list of users with given input array",
-        "description": "",
-        "operationId": "createUsersWithListInput",
-        "produces": [
-          "application/xml",
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "description": "List of user object",
-            "required": true,
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/User"
-              }
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": "successful operation"
-          }
-        }
-      }
-    },
-    "/user/login": {
+    "/user/create": {
       "get": {
         "tags": [
           "user"
         ],
-        "summary": "Logs user into the system",
-        "description": "",
-        "operationId": "loginUser",
+        "summary": "data necessary for created a new user",
+        "description": "This can only be done by the logged in user.",
+        "operationId": "requestCreateUser",
         "produces": [
-          "application/xml",
           "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "username",
-            "in": "query",
-            "description": "The user name for login",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "password",
-            "in": "query",
-            "description": "The password for login in clear text",
-            "required": true,
-            "type": "string"
-          }
         ],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "string"
-            },
-            "headers": {
-              "X-Rate-Limit": {
-                "type": "integer",
-                "format": "int32",
-                "description": "calls per hour allowed by the user"
-              },
-              "X-Expires-After": {
-                "type": "string",
-                "format": "date-time",
-                "description": "date in UTC when token expires"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Rol"
               }
             }
-          },
-          "400": {
-            "description": "Invalid username/password supplied"
           }
         }
       }
     },
-    "/user/logout": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "summary": "Logs out current logged in user session",
-        "description": "",
-        "operationId": "logoutUser",
-        "produces": [
-          "application/xml",
-          "application/json"
-        ],
-        "parameters": [],
-        "responses": {
-          "default": {
-            "description": "successful operation"
-          }
-        }
-      }
-    },
-    "/user/{username}": {
+    "/user/{id}": {
       "get": {
         "tags": [
           "user"
@@ -741,16 +520,15 @@
         "description": "",
         "operationId": "getUserByName",
         "produces": [
-          "application/xml",
           "application/json"
         ],
         "parameters": [
           {
-            "name": "username",
+            "name": "id",
             "in": "path",
-            "description": "The name that needs to be fetched. Use user1 for testing. ",
+            "description": "The id that needs to be fetched. Use 1 for testing. ",
             "required": true,
-            "type": "string"
+            "type": "integer"
           }
         ],
         "responses": {
@@ -781,7 +559,7 @@
         ],
         "parameters": [
           {
-            "name": "username",
+            "name": "id",
             "in": "path",
             "description": "name that need to be updated",
             "required": true,
@@ -819,7 +597,7 @@
         ],
         "parameters": [
           {
-            "name": "username",
+            "name": "id",
             "in": "path",
             "description": "The name that needs to be deleted",
             "required": true,
