@@ -30,7 +30,11 @@
     },
     {
       "name": "user",
-      "description": "Operations about user",
+      "description": "Operations about user"
+    },
+    {
+      "name": "file",
+      "description": "Operation about files",
       "externalDocs": {
         "description": "Find out more about our store",
         "url": "http://swagger.io"
@@ -39,6 +43,11 @@
   ],
   "schemes": [
     "http"
+  ],
+  "security": [
+    {
+      "Bearer": []
+    }
   ],
   "paths": {
     "/tool": {
@@ -125,15 +134,7 @@
           "405": {
             "description": "Invalid input"
           }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
+        }
       }
     },
     "/tool/{id}": {
@@ -206,15 +207,7 @@
           "405": {
             "description": "Validation exception"
           }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
+        }
       },
       "delete": {
         "tags": [
@@ -261,9 +254,20 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Tool"
+              "type": "object",
+              "properties": {
+                "tools": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Tool"
+                  }
+                },
+                "jobStates": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/JobState"
+                  }
+                }
               }
             }
           }
@@ -502,9 +506,14 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Rol"
+              "type": "object",
+              "properties": {
+                "roles": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Rol"
+                  }
+                }
               }
             }
           }
@@ -613,21 +622,183 @@
           }
         }
       }
+    },
+    "/file": {
+      "get": {
+        "tags": [
+          "file"
+        ],
+        "summary": "Returns jobs files ",
+        "description": "return list of file",
+        "operationId": "listFile",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "idJob",
+            "in": "query",
+            "description": "job Id to return files list",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Files"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "file"
+        ],
+        "summary": "Create file",
+        "description": "send a correct parametres. A new file will be saved in the system",
+        "operationId": "fileSaved",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "File to add",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Files"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Job"
+            }
+          },
+          "400": {
+            "description": "Invalid Order"
+          }
+        }
+      }
+    },
+    "/file/{id}": {
+      "get": {
+        "tags": [
+          "file"
+        ],
+        "summary": "Find data file (NOT DONWLOAD)",
+        "description": "",
+        "operationId": "getInfoFile",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of file that needs",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Job"
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "job not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "file"
+        ],
+        "summary": "Delete file",
+        "description": "For valid response try integer IDs with positive integer value.         Negative or non-integer values will generate API errors",
+        "operationId": "deletedFile",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the file that needs to be deleted",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Order not found"
+          }
+        }
+      }
+    },
+    "/file/download/{id}": {
+      "get": {
+        "tags": [
+          "file"
+        ],
+        "summary": "download file",
+        "description": "For valid response try integer IDs with positive integer value.         Negative or non-integer values will generate API errors",
+        "operationId": "downloadFile",
+        "produces": [
+          "application/binary"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the file that needs to download",
+            "required": true,
+            "type": "integer",
+            "minimum": 1,
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "any file .csv, txt. ",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Order not found"
+          }
+        }
+      }
     }
   },
   "securityDefinitions": {
-    "petstore_auth": {
-      "type": "oauth2",
-      "authorizationUrl": "http://petstore.swagger.io/oauth/dialog",
-      "flow": "implicit",
-      "scopes": {
-        "write:pets": "modify pets in your account",
-        "read:pets": "read your pets"
-      }
-    },
-    "api_key": {
+    "Bearer": {
       "type": "apiKey",
-      "name": "api_key",
+      "name": "Authorization",
       "in": "header"
     }
   },
